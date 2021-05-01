@@ -8,22 +8,44 @@ import { Route } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 class BooksApp extends React.Component {
-  state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    books: [],
-    showSearchPage: false,
-    query: "",
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      allBooks: [],
+      shelvedBooks: {
+        currentlyReadingBooks: [],
+        wantToReadBooks: [],
+        readBooks: [],
+        noneBooks: [],
+      },
+      showSearchPage: false,
+      query: "",
+      shelves: ["Currently Reading", "Want To Read", "Read", "None"],
+    };
+  }
+  // state = {
+  //   /**
+  //    * TODO: Instead of using this state variable to keep track of which page
+  //    * we're on, use the URL in the browser's address bar. This will ensure that
+  //    * users can use the browser's back and forward buttons to navigate between
+  //    * pages, as well as provide a good URL they can bookmark and share.
+  //    */
+  //   allBooks: [],
+  //   shelvedBooks: {
+  //     currentlyReadingBooks: [],
+  //     wantToReadBooks: [],
+  //     readBooks: [],
+  //     noneBooks: [],
+  //   },
+  //   showSearchPage: false,
+  //   query: "",
+  //   shelves: ["Currently Reading", "Want To Read", "Read", "None"]
+  // };
 
   componentDidMount() {
-    BooksAPI.getAll().then((books) => {
+    BooksAPI.getAll().then((allBooks) => {
       this.setState(() => ({
-        books,
+        allBooks,
       }));
     });
   }
@@ -38,25 +60,68 @@ class BooksApp extends React.Component {
     this.updateQuery("");
   };
 
+  moveBook = (book, shelf) => {
+    switch (shelf) {
+      case "currentlyReading":
+        this.setState({
+          shelvedBooks: {
+            ...this.state.shelvedBooks,
+            currentlyReadingBooks: this.state.shelvedBooks.currentlyReadingBooks.concat(
+              [book]
+            ),
+          },
+        });
+        break;
+      case "wantToRead":
+        this.setState({
+          shelvedBooks: {
+            ...this.state.shelvedBooks,
+            wantToReadBooks: this.state.shelvedBooks.wantToReadBooks.concat([
+              book,
+            ]),
+          },
+        });
+        break;
+      case "read":
+        this.setState({
+          shelvedBooks: {
+            ...this.state.shelvedBooks,
+            readBooks: this.state.shelvedBooks.readBooks.concat([book]),
+          },
+        });
+        break;
+      case "none":
+        this.setState({
+          shelvedBooks: {
+            ...this.state.shelvedBooks,
+            noneBooks: this.state.shelvedBooks.noneBooks.concat([book]),
+          },
+        });
+        break;
+    }
+  };
+
   render() {
-    const { query, books } = this.state;
+    const { query, allBooks } = this.state;
 
     const showingBooks =
-      query === "" ? books : books.filter((c) => c.title.includes(query));
+      query === "" ? allBooks : allBooks.filter((c) => c.title.includes(query));
     return (
       <div className="app">
         {this.state.showSearchPage ? (
-          <Route path="/search" render={() => (
-              <div className="search-books">
-                <div className="search-books-bar">
+          <Route exact path="/search"
+            render={() => (
+              <div className="search-allBooks">
+                <div className="search-allBooks-bar">
                   <Link to="/">
                     <button
                       className="close-search"
-                      onClick={() => this.setState({ showSearchPage: false })}>
+                      onClick={() => this.setState({ showSearchPage: false })}
+                    >
                       Close
                     </button>
                   </Link>
-                  <div className="search-books-input-wrapper">
+                  <div className="search-allBooks-input-wrapper">
                     {/*
                   NOTES: The search from BooksAPI is limited to a particular set of search terms.
                   You can find these search terms here:
@@ -73,21 +138,17 @@ class BooksApp extends React.Component {
                     />
                   </div>
                 </div>
-                <div className="search-books-results">
-                  <ol className="books-grid">
-                    {showingBooks.length !== books.length && (
-                      <div className="showing-books">
+                <div className="search-allBooks-results">
+                  <ol className="allBooks-grid">
+                    {showingBooks.length !== allBooks.length && (
+                      <div className="showing-allBooks">
                         <span>
-                          Now showing {showingBooks.length} of {books.length}
+                          Now showing {showingBooks.length} of {allBooks.length}
                         </span>
                         <button onClick={this.clearQuery}>Show all</button>
                         {showingBooks.map((book) => (
                           <li>
-                            <Book
-                              bookTitle={book.title}
-                              bookAuthor={book.authors[0]}
-                              bookCover={book.imageLinks.thumbnail}
-                            />
+                            <Book book={book} onMoveBook={this.moveBook}  />
                           </li>
                         ))}
                       </div>
@@ -98,18 +159,33 @@ class BooksApp extends React.Component {
             )}
           />
         ) : (
-          <Route
-            exact path="/" render={() => (
+          <Route exact path="/" render={() => (
               <div>
-                <Shelf />
-                <div className="open-search">
-                  <Link
-                    to="/search">
-                    <button
-                      onClick={() => this.setState({ showSearchPage: true })}>
-                      Add a book
-                    </button>
-                  </Link>
+                <div className="list-books">
+                  <div className="list-books-title">
+                    <h1>MyReads</h1>
+                  </div>
+                  {this.state.shelves.map((shelf) => {
+                    return (
+                      <Shelf
+                        onMoveBook={(book, shelf) => {
+                          this.moveBook(book, shelf);
+                        }}
+                        allBooks={this.state.allBooks}
+                        shelf={shelf}
+                        shelvedBooks={this.state.shelvedBooks}
+                      />
+                    );
+                  })}
+                  <div className="open-search">
+                    <Link to="/search">
+                      <button
+                        onClick={() => this.setState({ showSearchPage: true })}
+                      >
+                        Add a book
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             )}

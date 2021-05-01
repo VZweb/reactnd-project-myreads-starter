@@ -3,6 +3,11 @@ import PropTypes from "prop-types";
 import "./App.css";
 
 class Book extends Component {
+    changeFunc = (e) => {
+        const value = e.target.value
+          this.props.onMoveBook(this.props.book, value)
+      }
+
   render() {
     return (
       <div className="book">
@@ -12,14 +17,12 @@ class Book extends Component {
             style={{
               width: 128,
               height: 193,
-              backgroundImage: `url("${this.props.bookCover}")`,
+              backgroundImage: `url("${this.props.book.imageLinks.thumbnail}")`,
             }}
           ></div>
           <div className="book-shelf-changer">
-            <select>
-              <option value="move" disabled>
-                Move to...
-              </option>
+            <select onChange={this.changeFunc}>
+              <option value="move" disabled>Move to...</option>
               <option value="currentlyReading">Currently Reading</option>
               <option value="wantToRead">Want to Read</option>
               <option value="read">Read</option>
@@ -27,8 +30,8 @@ class Book extends Component {
             </select>
           </div>
         </div>
-        <div className="book-title">{this.props.bookTitle}</div>
-        <div className="book-authors">{this.props.bookAuthor}</div>
+        <div className="book-title">{this.props.book.title}</div>
+        <div className="book-authors">{this.props.book.authors[0]}</div>
       </div>
     );
   }
