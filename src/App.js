@@ -13,34 +13,15 @@ class BooksApp extends React.Component {
     this.state = {
       allBooks: [],
       shelvedBooks: {
-        currentlyReadingBooks: [],
-        wantToReadBooks: [],
-        readBooks: [],
-        noneBooks: [],
+        currentlyReading: [],
+        wantToRead: [],
+        read: []
       },
       showSearchPage: false,
       query: "",
-      shelves: ["Currently Reading", "Want To Read", "Read", "None"],
+      shelves: ["Currently Reading", "Want To Read", "Read"],
     };
   }
-  // state = {
-  //   /**
-  //    * TODO: Instead of using this state variable to keep track of which page
-  //    * we're on, use the URL in the browser's address bar. This will ensure that
-  //    * users can use the browser's back and forward buttons to navigate between
-  //    * pages, as well as provide a good URL they can bookmark and share.
-  //    */
-  //   allBooks: [],
-  //   shelvedBooks: {
-  //     currentlyReadingBooks: [],
-  //     wantToReadBooks: [],
-  //     readBooks: [],
-  //     noneBooks: [],
-  //   },
-  //   showSearchPage: false,
-  //   query: "",
-  //   shelves: ["Currently Reading", "Want To Read", "Read", "None"]
-  // };
 
   componentDidMount() {
     BooksAPI.getAll().then((allBooks) => {
@@ -61,44 +42,11 @@ class BooksApp extends React.Component {
   };
 
   moveBook = (book, shelf) => {
-    switch (shelf) {
-      case "currentlyReading":
-        this.setState({
-          shelvedBooks: {
-            ...this.state.shelvedBooks,
-            currentlyReadingBooks: this.state.shelvedBooks.currentlyReadingBooks.concat(
-              [book]
-            ),
-          },
-        });
-        break;
-      case "wantToRead":
-        this.setState({
-          shelvedBooks: {
-            ...this.state.shelvedBooks,
-            wantToReadBooks: this.state.shelvedBooks.wantToReadBooks.concat([
-              book,
-            ]),
-          },
-        });
-        break;
-      case "read":
-        this.setState({
-          shelvedBooks: {
-            ...this.state.shelvedBooks,
-            readBooks: this.state.shelvedBooks.readBooks.concat([book]),
-          },
-        });
-        break;
-      case "none":
-        this.setState({
-          shelvedBooks: {
-            ...this.state.shelvedBooks,
-            noneBooks: this.state.shelvedBooks.noneBooks.concat([book]),
-          },
-        });
-        break;
-    }
+    BooksAPI.update(book, shelf).then((shelvedBooks) => {
+      this.setState(() => ({
+        shelvedBooks,
+      }));
+    });
   };
 
   render() {
@@ -106,10 +54,13 @@ class BooksApp extends React.Component {
 
     const showingBooks =
       query === "" ? allBooks : allBooks.filter((c) => c.title.includes(query));
+    const shelves = Object.getOwnPropertyNames(this.state.shelvedBooks)
     return (
       <div className="app">
         {this.state.showSearchPage ? (
-          <Route exact path="/search"
+          <Route
+            exact
+            path="/search"
             render={() => (
               <div className="search-allBooks">
                 <div className="search-allBooks-bar">
@@ -148,7 +99,7 @@ class BooksApp extends React.Component {
                         <button onClick={this.clearQuery}>Show all</button>
                         {showingBooks.map((book) => (
                           <li>
-                            <Book book={book} onMoveBook={this.moveBook}  />
+                            <Book bookId={book.id} onMoveBook={this.moveBook} />
                           </li>
                         ))}
                       </div>
@@ -159,13 +110,16 @@ class BooksApp extends React.Component {
             )}
           />
         ) : (
-          <Route exact path="/" render={() => (
+          <Route
+            exact
+            path="/"
+            render={() => (
               <div>
                 <div className="list-books">
                   <div className="list-books-title">
                     <h1>MyReads</h1>
                   </div>
-                  {this.state.shelves.map((shelf) => {
+                  {shelves.map((shelf) => {
                     return (
                       <Shelf
                         onMoveBook={(book, shelf) => {
@@ -173,7 +127,7 @@ class BooksApp extends React.Component {
                         }}
                         allBooks={this.state.allBooks}
                         shelf={shelf}
-                        shelvedBooks={this.state.shelvedBooks}
+                        shelvedBooks={this.state.allBooks}
                       />
                     );
                   })}
