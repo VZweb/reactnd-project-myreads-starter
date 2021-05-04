@@ -20,6 +20,7 @@ class BooksApp extends React.Component {
       showSearchPage: false,
       query: "",
       shelves: ["Currently Reading", "Want To Read", "Read"],
+      searchedBooks: []
     };
   }
 
@@ -33,9 +34,21 @@ class BooksApp extends React.Component {
 
   updateQuery = (query) => {
     this.setState(() => ({
-      query: query.trim(),
+      query: query,
     }));
-  };
+
+    BooksAPI.search(query).then((searchedBooks) => {
+      if (searchedBooks === undefined || searchedBooks.items && searchedBooks.items.length === 0) {
+        this.setState(() => ({
+          searchedBooks: [],
+        }))
+      } else {
+        this.setState(() => ({
+          searchedBooks,
+        }))
+      }
+    })
+  }
 
   clearQuery = () => {
     this.updateQuery("");
@@ -43,17 +56,22 @@ class BooksApp extends React.Component {
 
   moveBook = (book, shelf) => {
     BooksAPI.update(book, shelf).then((shelvedBooks) => {
-      this.setState(() => ({
-        shelvedBooks,
-      }));
+      BooksAPI.getAll().then((allBooks) => {
+        this.setState(() => ({
+          allBooks,
+        }));
+      });
     });
   };
 
-  render() {
-    const { query, allBooks } = this.state;
+  getBook = (book) => {
+    const shelvedBook = this.state.allBooks.find(({ id }) => id === book.id)
+    if (shelvedBook !== undefined) return shelvedBook
+    else return book
+  }
 
-    const showingBooks =
-      query === "" ? allBooks : allBooks.filter((c) => c.title.includes(query));
+  render() {
+    const { query, allBooks, searchedBooks } = this.state;
     const shelves = Object.getOwnPropertyNames(this.state.shelvedBooks)
     return (
       <div className="app">
@@ -62,8 +80,8 @@ class BooksApp extends React.Component {
             exact
             path="/search"
             render={() => (
-              <div className="search-allBooks">
-                <div className="search-allBooks-bar">
+              <div className="search-books">
+                <div className="search-books-bar">
                   <Link to="/">
                     <button
                       className="close-search"
@@ -89,21 +107,13 @@ class BooksApp extends React.Component {
                     />
                   </div>
                 </div>
-                <div className="search-allBooks-results">
-                  <ol className="allBooks-grid">
-                    {showingBooks.length !== allBooks.length && (
-                      <div className="showing-allBooks">
-                        <span>
-                          Now showing {showingBooks.length} of {allBooks.length}
-                        </span>
-                        <button onClick={this.clearQuery}>Show all</button>
-                        {showingBooks.map((book) => (
-                          <li>
-                            <Book bookId={book.id} onMoveBook={this.moveBook} />
-                          </li>
-                        ))}
-                      </div>
-                    )}
+                <div className="search-books-results">
+                  <ol className="books-grid">
+                    {searchedBooks.map((book) => (
+                      <li>
+                        <Book book={this.getBook(book)} onMoveBook={this.moveBook}/>
+                      </li>
+                    ))}
                   </ol>
                 </div>
               </div>
@@ -127,7 +137,6 @@ class BooksApp extends React.Component {
                         }}
                         allBooks={this.state.allBooks}
                         shelf={shelf}
-                        shelvedBooks={this.state.allBooks}
                       />
                     );
                   })}

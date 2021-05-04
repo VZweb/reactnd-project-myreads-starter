@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import "./App.css";
-import * as BooksAPI from "./BooksAPI";
 
 class Book extends Component {
   state = {
@@ -9,15 +8,13 @@ class Book extends Component {
   };
   changeFunc = (e) => {
     const value = e.target.value;
-    this.props.onMoveBook(this.state.book, value);
+    this.props.onMoveBook(this.props.book, value);
   };
 
-  componentDidMount() {
-    // BooksAPI.get(this.props.bookId).then((book) => {
-    //   this.setState(() => ({
-    //     book,
-    //   }));
-    // });
+  getAuthor (authors) {
+      if (authors === [] || authors === undefined) {
+          return ''
+      } else return authors[0]
   }
 
   render() {
@@ -40,12 +37,12 @@ class Book extends Component {
                 <option value="currentlyReading">Currently Reading</option>
                 <option value="wantToRead">Want to Read</option>
                 <option value="read">Read</option>
-                <option value="none">None</option>
+                <option value="none" selected="selected">None</option>
               </select>
             </div>
           </div>
           <div className="book-title">{this.props.book.title}</div>
-          <div className="book-authors">{this.props.book.authors[0]}</div></div>)}
+          <div className="book-authors">{this.getAuthor(this.props.book.authors)}</div></div>)}
       </div>
     );
   }

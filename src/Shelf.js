@@ -10,19 +10,14 @@ class Shelf extends Component {
   state = {
     query: "",
     book: [],
+    currentShelvedBooks: []
   };
 
-  // filter the books based on this.prop.shelf and display those
-
   render() {
-    let currentShelvedBooks = [];
-    this.props.shelf === "currentlyReading"
-      ? (currentShelvedBooks = this.props.shelvedBooks.currentlyReading)
-      : this.props.shelf === "wantToRead"
-      ? (currentShelvedBooks = this.props.shelvedBooks.wantToRead)
-      : this.props.shelf === "read"
-      ? (currentShelvedBooks = this.props.shelvedBooks.read)
-      : (currentShelvedBooks = []);
+    let currentShelvedBooks = this.props.allBooks.filter((b) => (
+      b.shelf === this.props.shelf
+    ))
+ 
     return (
       <div className="list-books-content">
         <div>
@@ -30,7 +25,7 @@ class Shelf extends Component {
             <h2 className="bookshelf-title">{this.props.shelf}</h2>
             <div className="bookshelf-books">
               <ol className="books-grid">
-                {this.props.allBooks.map((book) => (
+                {currentShelvedBooks.map((book) => (
                   <li>
                     <Book
                       book={book}
