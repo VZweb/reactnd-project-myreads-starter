@@ -1,11 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types";
-import * as BooksAPI from "./BooksAPI";
-import "./App.css";
-import Shelf from "./Shelf";
-import Book from "./Book";
-import { Route } from "react-router-dom";
-import { Link } from "react-router-dom";
+import React from 'react'
+import * as BooksAPI from './BooksAPI'
+import './App.css'
+import Shelf from './Shelf'
+import Book from './Book'
+import { Route, Link } from 'react-router-dom'
 
 class BooksApp extends React.Component {
   constructor(props) {
@@ -15,12 +13,12 @@ class BooksApp extends React.Component {
       shelvedBooks: {
         currentlyReading: [],
         wantToRead: [],
-        read: []
+        read: [],
       },
       showSearchPage: false,
       query: "",
       shelves: ["Currently Reading", "Want To Read", "Read"],
-      searchedBooks: []
+      searchedBooks: [],
     };
   }
 
@@ -38,21 +36,20 @@ class BooksApp extends React.Component {
     }));
 
     BooksAPI.search(query).then((searchedBooks) => {
-      if (searchedBooks === undefined || searchedBooks.items && searchedBooks.items.length === 0) {
+      if (
+        searchedBooks === undefined ||
+        (searchedBooks.items && searchedBooks.items.length === 0)
+      ) {
         this.setState(() => ({
           searchedBooks: [],
-        }))
+        }));
       } else {
         this.setState(() => ({
           searchedBooks,
-        }))
+        }));
       }
-    })
+    });
   }
-
-  clearQuery = () => {
-    this.updateQuery("");
-  };
 
   moveBook = (book, shelf) => {
     BooksAPI.update(book, shelf).then((shelvedBooks) => {
@@ -62,17 +59,17 @@ class BooksApp extends React.Component {
         }));
       });
     });
-  };
+  }
 
   getBook = (book) => {
-    const shelvedBook = this.state.allBooks.find(({ id }) => id === book.id)
-    if (shelvedBook !== undefined) return shelvedBook
-    else return book
+    const shelvedBook = this.state.allBooks.find(({ id }) => id === book.id);
+    if (shelvedBook !== undefined) return shelvedBook;
+    else return book;
   }
 
   render() {
-    const { query, allBooks, searchedBooks } = this.state;
-    const shelves = Object.getOwnPropertyNames(this.state.shelvedBooks)
+    const { query, searchedBooks } = this.state;
+    const shelves = Object.getOwnPropertyNames(this.state.shelvedBooks);
     return (
       <div className="app">
         {this.state.showSearchPage ? (
@@ -91,14 +88,6 @@ class BooksApp extends React.Component {
                     </button>
                   </Link>
                   <div className="search-allBooks-input-wrapper">
-                    {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
                     <input
                       type="text"
                       placeholder="Search by title or author"
@@ -110,8 +99,11 @@ class BooksApp extends React.Component {
                 <div className="search-books-results">
                   <ol className="books-grid">
                     {searchedBooks.map((book) => (
-                      <li>
-                        <Book book={this.getBook(book)} onMoveBook={this.moveBook}/>
+                      <li key={book.id}>
+                        <Book
+                          book={this.getBook(book)}
+                          onMoveBook={this.moveBook}
+                        />
                       </li>
                     ))}
                   </ol>
@@ -131,13 +123,15 @@ class BooksApp extends React.Component {
                   </div>
                   {shelves.map((shelf) => {
                     return (
-                      <Shelf
-                        onMoveBook={(book, shelf) => {
-                          this.moveBook(book, shelf);
-                        }}
-                        allBooks={this.state.allBooks}
-                        shelf={shelf}
-                      />
+                      <div key={shelf}>
+                        <Shelf
+                          onMoveBook={(book, shelf) => {
+                            this.moveBook(book, shelf);
+                          }}
+                          allBooks={this.state.allBooks}
+                          shelf={shelf}
+                        />
+                      </div>
                     );
                   })}
                   <div className="open-search">
@@ -159,4 +153,4 @@ class BooksApp extends React.Component {
   }
 }
 
-export default BooksApp;
+export default BooksApp
