@@ -1,4 +1,4 @@
-# MyReads Project
+# MyReads Project Description
 
 Welcome to my project. This project was created as part of the Udacity Nanodegree program. 
 The project aims to showcase the skills learned from the first part. The MyReads app can be used to categorize books based on their status, "Currently Reading", "Want To Read" and "Read".
@@ -14,12 +14,25 @@ Concepts used:
 -Calling APIs
 -Fethcing data from APIs
 
-## TL;DR
+## Requirements & Installation
 
 To get started developing right away:
 
 * install all project dependencies with `npm install`
 * start the development server with `npm start`
+
+## Support
+
+Please contact me by email @ zvasilis@gmail.com for any issues found or any suggestions that you might have.
+
+## Roadmap
+
+There is a plan of adding new features to the app like adding custom shelves or changing the theme's colors.
+
+## Authors and acknowledgment
+
+A big thank you to Udacity for providing the opportunity to work on a project like this.
+
 
 ## What You're Getting
 ```bash
@@ -47,7 +60,7 @@ Remember that good React design practice is to create new JS files for each comp
 
 ## Backend Server
 
-To simplify your development process, we've provided a backend server for you to develop against. The provided file [`BooksAPI.js`](src/BooksAPI.js) contains the methods you will need to perform necessary operations on the backend:
+The provided file [`BooksAPI.js`](src/BooksAPI.js) contains the methods you will need to perform necessary operations on the backend:
 
 * [`getAll`](#getall)
 * [`update`](#update)
