@@ -10,30 +10,19 @@ class BooksApp extends React.Component {
     super(props);
     this.state = {
       allBooks: [],
-      shelvedBooks: {
-        currentlyReading: [],
-        wantToRead: [],
-        read: [],
-      },
-      showSearchPage: false,
       query: "",
-      shelves: ["Currently Reading", "Want To Read", "Read"],
       searchedBooks: [],
     };
   }
 
   componentDidMount() {
     BooksAPI.getAll().then((allBooks) => {
-      this.setState(() => ({
-        allBooks,
-      }));
+      this.setState({ allBooks });
     });
   }
 
   updateQuery = (query) => {
-    this.setState(() => ({
-      query: query,
-    }));
+    this.setState({ query });
 
     BooksAPI.search(query).then((searchedBooks) => {
       if (
@@ -69,10 +58,10 @@ class BooksApp extends React.Component {
 
   render() {
     const { query, searchedBooks } = this.state;
-    const shelves = Object.getOwnPropertyNames(this.state.shelvedBooks);
+    const shelves = [{id:"currentlyReading", title: "Currently Reading"}, {id: "wantToRead", title:"Want To Read"}, {id: "read", title:"Read"}]
     return (
       <div className="app">
-        {this.state.showSearchPage ? (
+        
           <Route
             exact
             path="/search"
@@ -82,7 +71,6 @@ class BooksApp extends React.Component {
                   <Link to="/">
                     <button
                       className="close-search"
-                      onClick={() => this.setState({ showSearchPage: false })}
                     >
                       Close
                     </button>
@@ -111,7 +99,7 @@ class BooksApp extends React.Component {
               </div>
             )}
           />
-        ) : (
+
           <Route
             exact
             path="/"
@@ -123,13 +111,13 @@ class BooksApp extends React.Component {
                   </div>
                   {shelves.map((shelf) => {
                     return (
-                      <div key={shelf}>
+                      <div key={shelf.id}>
                         <Shelf
                           onMoveBook={(book, shelf) => {
                             this.moveBook(book, shelf);
                           }}
                           allBooks={this.state.allBooks}
-                          shelf={shelf}
+                          shelf={shelf.id}
                         />
                       </div>
                     );
@@ -147,7 +135,7 @@ class BooksApp extends React.Component {
               </div>
             )}
           />
-        )}
+        
       </div>
     );
   }
